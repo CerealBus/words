@@ -28,48 +28,6 @@ namespace words
 			while (!wordReader.EndOfStream)
 				words.Add(wordReader.ReadLine());
 
-#if false
-			while (true)
-			{
-				Console.Write("> ");
-				string chars = Console.ReadLine();
-
-				if (chars == null) // end of stream, or user did a ^Z
-					break;
-
-				// Strip whitespace. Allows some notational leeway, as
-				// well as making redirected standard in easier.
-				chars = Regex.Replace(chars, @"\s+", "");
-
-			    if (chars.Length == 1 && chars[0] == '\x04') // ^D, AKA end of transmission
-					break;
-				else if (chars.Length == 1 && chars[0] == '?')
-				{
-					//Console.WriteLine("Enter a string of letters to see what words they can make.");
-					Console.Write("Enter a string of ");
-					WriteBold("letters");
-					Console.Write(" to see what words they can make.");
-					Console.WriteLine();
-					Console.WriteLine("Enter ^C, ^D, or ^Z to quit.");
-				}
-				else if (Regex.IsMatch(chars, "[^a-zA-Z]"))
-				{
-					WriteColor(ConsoleColor.Red, "Invalid input: only letters are accepted");
-					Console.WriteLine();
-				}
-				else
-				{
-					var list = words.Search(chars)
-						.Where(s => 3 <= s.Length && s.Length <= 8)
-						.OrderBy(s => s)
-						.Distinct()
-						.ToList();
-					for (var i = 3; i <= 8; ++i)
-						foreach (var word in list.Where(s => s.Length == i))
-							Console.WriteLine(word);
-				}
-			}
-#else
 			var inputExpression = new Regex(@"
 				^
 				(?:{(?:
@@ -133,7 +91,6 @@ namespace words
 							Console.WriteLine(word);
 				}
 			}
-#endif
 		}
 
 		static void WriteUsage()
