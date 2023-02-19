@@ -85,10 +85,11 @@ namespace words
 			
 			while (true)
 			{
-				Console.Write("> ");
-				string chars = Console.ReadLine();
-				//if (Console.IsInputRedirected) // added in .net core :/
-				Console.WriteLine(); // '> word' with redirected input confuses grep
+				if (!Console.IsInputRedirected)
+				{
+					Console.Write("> ");
+				}
+				string? chars = Console.ReadLine();
 
 				if (chars == null) // end of stream, or user did a ^Z
 					break;
@@ -156,7 +157,11 @@ namespace words
 			Console.Write("  ");
 			WriteBold("{>m<n}");
 			Console.WriteLine("letters : words with length netween m and n");
+			Console.Write("If no ");
+			WriteBold("quantifier");
+			Console.WriteLine(" is given, then word length will be be between 3 and 8.");
 			Console.WriteLine();
+			Console.WriteLine("Enter ? to see this help.");
 			Console.WriteLine("Enter ^C, ^D, or ^Z to quit.");
 		}
 
