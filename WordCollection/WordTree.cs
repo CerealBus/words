@@ -304,35 +304,14 @@ namespace WordCollection
 		/// </remarks>
 		private IEnumerable<string> Search(string prefix, ICollection<char> chars, Node root)
 		{
-			//Console.WriteLine($@"prefix: ""{prefix.PadRight(7, ' ')}"", chars[0]: {chars.First()}, root: {{value: '{root?.value}', IsWord: {root?.IsWord}}}");
 			if (root == null)
 				yield break;
-			//else if (root.IsWord)
-			//	yield return prefix;
-
-			// // BUG: addition of wildcard is borked.
-			// // BUG: {=7}ca* doesn't return carcass with the scroggle dictionary.
-			// // var dbgprefixes = new [] {
-			// // 	"C", "CA", "CAR", "CARC", "CARCA", "CARCAS", "CARCASS"
-			// // };
-			// // if (dbgprefixes.Contains(prefix))
-			// // 	Console.WriteLine("At \"{0}\"", prefix);
-			// // TODO: add a "don't jumble this root searh
-			// if (chars.Count == 1 && chars.First() == '*') {
-			// 	chars = Enumerable.Range('A', 'Z' - 'A')
-			// 					  .Select(i => (char)i)
-			// 					  .Concat(new char[]{ '*' })
-			// 					  .ToArray();
-			// 	Console.WriteLine("{0}chars: {1}", "".PadLeft(19), chars.Aggregate("", (a, c) => a + c.ToString()));
-			// }
 
 			// NOTE: This doesn't handle duplicates in chars.
 			//       The word CRATE will be reported twice for search chars
 			//       "CAERET"
 			foreach (var c in chars)
 			{
-				// if (c == '*')
-				// 	break;
 				var nextPrefix = prefix + c;
 				var unsearched = new List<char>(chars);
 				unsearched.Remove(c);

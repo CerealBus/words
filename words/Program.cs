@@ -65,7 +65,7 @@ namespace words
 					|(?<inequality>\<(?<upper>[0-9]+))
 					|(?<inequality>\>(?<lower>[0-9]+)\<(?<upper>[0-9]+))
 				)})?
-				(?<letters>[a-zA-Z]+\*?)
+				(?<letters>[a-zA-Z]+?)
 				$",
 				RegexOptions.IgnorePatternWhitespace
 			);
