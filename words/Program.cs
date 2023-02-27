@@ -8,25 +8,54 @@ namespace words
 {
 	static class Program
 	{
+		/// <summmary>
+		/// System proc exit code for bad arguments.
+		/// </summary>
+		/// <seealso href="https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-#ERROR_BAD_ARGUMENTS">
+		/// ERROR_BAD_ARGUMENTS
+		/// </seealso>
+		private const int ERROR_BAD_ARGUMENTS = 0xA0;
+
 		static void Main(string[] args)
 		{
-			if (args.Length != 0)
+			// Switch to a parsing lib if args get any more complex.
+			if (args.Length > 1)
 			{
-				Console.Write    ("Yeah, no. Sorry, but this little app");
-				Console.WriteLine("doesn't accept arguments.");;
-				Console.Write    ("It'll work just fine if you redirect");
-				Console.WriteLine("standard input to it though.");
-				Console.WriteLine("Here's the usag:");
+				Console.WriteLine(
+					$"""
+					This little app only takes, at most, one argument: a dictionary name.
+					Available dictionaries are:
+					  {GetAvailableDictionaries().Aggregate((list, next) => $"{list}\n  {next}")}
+					If not specified, the aspell dictionary will be used by default.
+					Input is received on standard input, and redirection
+					works just fine.
+					Here's the usage:
+					"""
+				);
 				WriteUsage();
-				Environment.ExitCode = 0xA0; // ERROR_BAD_ARGUMENTS
+				Environment.ExitCode = ERROR_BAD_ARGUMENTS;
 				return;
+			}
+
+			// Check that the specified dictionary is valid.
+			string dictArg = (args.Length == 0 ? "aspell" : args[0]).ToLowerInvariant();
+			if (!GetAvailableDictionaries().Contains(dictArg))
+			{
+				Console.WriteLine(
+					$"""
+					The specified dictionnary ("{dictArg}") is invalid.
+					Available dictionaries are:
+					  {GetAvailableDictionaries().Aggregate((list, next) => $"{list}\n  {next}")}
+					"""
+				);
+				Environment.ExitCode = ERROR_BAD_ARGUMENTS;
 			}
 			
 			IWordCollection words = new WordTree();
 
-			using (var wordReader = new StreamReader(GetWordStream()))
+			using (var wordReader = new StreamReader(GetWordStream(dictArg)))
 			while (!wordReader.EndOfStream)
-				words.Add(wordReader.ReadLine());
+				words.Add(wordReader.ReadLine()!);
 
 			var inputExpression = new Regex(@"
 				^
@@ -122,35 +151,42 @@ namespace words
 			Console.WriteLine("Enter ^C, ^D, or ^Z to quit.");
 		}
 
+		static IEnumerable<string> GetAvailableDictionaries() {
+			var asm = typeof(Program).Assembly;
+			var dict_prefix = $"{typeof(Program).Assembly.GetName().Name}.dictionaries.";
+
+			return
+				from resourceName in asm.GetManifestResourceNames()
+				where resourceName.StartsWith(dict_prefix)
+				select resourceName.Substring(dict_prefix.Length);
+		}
+
 		/// <summary>
-		/// Retrieves the the list of known words as a stream.
+		/// Retrieves a dictioonary's words as a stream.
 		/// </summary>
-		static Stream GetWordStream()
+		/// <excepion cref="System.ArgumentException">
+		/// if the specified dictionary can't be found
+		/// </exception>
+		static Stream GetWordStream(string dictName)
 		{
 			var t = typeof(Program);
-			//return t.Assembly.GetManifestResourceStream(t, "dictionary");
-			// TODO: runtime dictionary selection
-			// TODO: remove extra DefineConstant from .csproj
-#if ASPELL
-			#warning using aspell dictionary
-			var resource = "dictionary";
+			Stream stream;
+			try
+			{
+				stream = t.Assembly.GetManifestResourceStream(t, $"dictionaries.{dictName}")!;
+				if (stream == null)
+					throw new ArgumentException($"Dictionary \"{dictName}\" could not be loaded.");
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException($"Dictionary \"{dictName}\" could not be loaded.", e);
+			}
+
 			Console.Write("Using the ");
-			WriteBold("aspell");
+			WriteBold(dictName);
 			Console.WriteLine(" dictionary");
-#elif SCROGGLE
-			#warning using scroggle dictionary
-			var resource = "scroggle";
-			Console.Write("Using the ");
-			WriteBold("scroggle");
-			Console.WriteLine(" dictionary");
-#else
-			#error No dictionary selected. Define either ASPELL or SCROGGLE.
-			// defined so VS code would stop bitching about this
-			// still complains about the #error though
-			// ¯\_(ツ)_/¯
-			var resource = "";
-#endif
-			return t.Assembly.GetManifestResourceStream(t, resource);
+
+			return stream;
 		}
 
 		/// <summary>

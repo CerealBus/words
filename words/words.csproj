@@ -19,8 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="dictionary" Condition="$(DefineConstants.ToLower().Contains('aspell'))" />
-    <EmbeddedResource Include="scroggle" Condition="$(DefineConstants.ToLower().Contains('scroggle'))" />
+    <EmbeddedResource Include="dictionaries\*" Exclude="dictionaries\README.md" />
   </ItemGroup>
 
 </Project>
