@@ -49,6 +49,7 @@ namespace words
 					"""
 				);
 				Environment.ExitCode = ERROR_BAD_ARGUMENTS;
+				return;
 			}
 			
 			IWordCollection words = new WordTree();
