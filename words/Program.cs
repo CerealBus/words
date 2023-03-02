@@ -66,7 +66,7 @@ namespace words
 					|(?<inequality>\<(?<upper>[0-9]+))
 					|(?<inequality>\>(?<lower>[0-9]+)\<(?<upper>[0-9]+))
 				)})?
-				(?<letters>[a-zA-Z]+?)
+				(?<letters>[a-zA-Z]+\*?)
 				$",
 				RegexOptions.IgnorePatternWhitespace
 			);
@@ -128,25 +128,38 @@ namespace words
 			Console.Write("Enter a string of ");
 			WriteBold("letters");
 			Console.WriteLine(" to see what words they can make.");
-			Console.Write("You can also put a ");
+			Console.WriteLine("You can also:");
+			Console.Write("  put a ");
 			WriteBold("quantifier");
 			Console.WriteLine(" first to limit word lengths.");
+			Console.Write("  put a ");
+			WriteBold("wildcard");
+			Console.Write(" on the end to match ");
+			WriteBold("anything");
+			Console.WriteLine(".");
 			Console.WriteLine("Examples:");
 			Console.Write("    ");
 			WriteBold("{=m}");
-			Console.WriteLine("letters : words of length m");
+			Console.WriteLine("letters  : words of length m");
 			Console.Write("    ");
 			WriteBold("{>m}");
-			Console.WriteLine("letters : words of at least length m");
+			Console.WriteLine("letters  : words of at least length m");
 			Console.Write("    ");
 			WriteBold("{<m}");
-			Console.WriteLine("letters : words of at most length m");
+			Console.WriteLine("letters  : words of at most length m");
 			Console.Write("  ");
 			WriteBold("{>m<n}");
-			Console.WriteLine("letters : words with length netween m and n");
+			Console.WriteLine("letters  : words with length netween m and n");
+			Console.Write("        letters");
+			WriteBold("*");
+			Console.WriteLine(" : words that start with any of the provided letters");
 			Console.Write("If no ");
 			WriteBold("quantifier");
 			Console.WriteLine(" is given, then word length will be be between 3 and 8.");
+			Console.Write("A ");
+			WriteBold("wildcard");
+			Console.WriteLine(" will dump every word starting with one of the given letters,");
+			Console.WriteLine("so you may want to filter results through a regular expression.");
 			Console.WriteLine();
 			Console.WriteLine("Enter ? to see this help.");
 			Console.WriteLine("Enter ^C, ^D, or ^Z to quit.");

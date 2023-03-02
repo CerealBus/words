@@ -312,12 +312,41 @@ namespace WordCollection
 			//       "CAERET"
 			foreach (var c in chars)
 			{
+				// Assumes there's only at most one wildcard, and that it comes
+				// at the end of chars.
+				if (c == '*')
+				{
+					foreach (var word in WildSearch(prefix, root))
+						yield return word;
+					// WildSearch will have included this node if it is
+					// a word node, so end this iterator block now
+					// to avoid duplicating it with this method's final yield.
+					yield break;
+				}
+
 				var nextPrefix = prefix + c;
 				var unsearched = new List<char>(chars);
 				unsearched.Remove(c);
 				foreach (var word in Search(nextPrefix, unsearched, root[c]))
 					yield return word;
 			}
+
+			if (root.IsWord)
+				yield return prefix;
+		}
+
+		private IEnumerable<string> WildSearch(string prefix, Node root)
+		{
+			if (root == null)
+				yield break;
+			// Don't do wildcard searches on the tree root,
+			// because doing so would just dump the whole tree.
+			else if (root == _root)
+				yield break;
+
+			for (char c = 'A'; c <= 'Z'; ++c)
+				foreach (var word in WildSearch(prefix + c, root[c]))
+					yield return word;
 
 			if (root.IsWord)
 				yield return prefix;
