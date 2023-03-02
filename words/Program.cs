@@ -116,7 +116,7 @@ namespace words
 						.OrderBy(s => s)
 						.Distinct()
 						.ToList();
-					for (var i = 3; i <= 8; ++i)
+					for (var i = low; i <= high; ++i)
 						foreach (var word in list.Where(s => s.Length == i))
 							Console.WriteLine(word);
 				}
